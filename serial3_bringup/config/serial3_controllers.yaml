@@ -1,0 +1,39 @@
+# Controladores de ros2_control para el robot serial3 (Gazebo y robot real)
+controller_manager:
+  ros__parameters:
+    update_rate: 1000  # Hz
+
+    # Publica /joint_states a partir de las interfaces de estado
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    # Sigue trayectorias de las tres juntas mandando esfuerzo con un PID por junta
+    arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+arm_controller:
+  ros__parameters:
+    joints:
+      - base_to_e1_joint
+      - e1_to_e2_joint
+      - e2_to_e3_joint
+    command_interfaces:
+      - effort
+    state_interfaces:
+      - position
+      - velocity
+
+    # Ganancias del PID (salida en N·m). Ajustadas en Gazebo Sim: error < 0.01 rad siguiendo
+    # trayectorias dentro de los límites de velocidad. El amortiguamiento de la junta (URDF, 0.7)
+    # ya aporta la parte derivativa, por eso d es pequeña.
+    gains:
+      base_to_e1_joint: {p: 100.0, i: 0.01, d: 0.01}
+      e1_to_e2_joint: {p: 100.0, i: 0.01, d: 0.01}
+      e2_to_e3_joint: {p: 100.0, i: 0.01, d: 0.01}
+
+    constraints:
+      goal_time: 1.0
+      stopped_velocity_tolerance: 0.05
+      base_to_e1_joint: {trajectory: 0.2, goal: 0.02}
+      e1_to_e2_joint: {trajectory: 0.2, goal: 0.02}
+      e2_to_e3_joint: {trajectory: 0.2, goal: 0.02}

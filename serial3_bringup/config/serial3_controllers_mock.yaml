@@ -1,0 +1,10 @@
+# Cambios sobre serial3_controllers.yaml para el hardware mock (hw:=mock).
+# El mock solo copia el mando al estado, así que se manda posición en lugar de esfuerzo.
+controller_manager:
+  ros__parameters:
+    update_rate: 100  # Hz
+
+arm_controller:
+  ros__parameters:
+    command_interfaces:
+      - position

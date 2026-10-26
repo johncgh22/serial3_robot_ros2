@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!-- Interfaces de ros2_control para las juntas del robot (sustituye a las <transmission> de ROS 1) -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- Una junta con estados de posición y velocidad.
+         command: "effort" (Gazebo / robot real) o "position" (mock, que solo copia el mando al estado) -->
+    <xacro:macro name="serial3_joint_interfaces" params="name max_effort command">
+        <joint name="${name}">
+            <xacro:if value="${command == 'effort'}">
+                <command_interface name="effort">
+                    <param name="min">-${max_effort}</param>
+                    <param name="max">${max_effort}</param>
+                </command_interface>
+            </xacro:if>
+            <xacro:if value="${command == 'position'}">
+                <command_interface name="position" />
+            </xacro:if>
+            <state_interface name="position">
+                <param name="initial_value">0.0</param>
+            </state_interface>
+            <state_interface name="velocity" />
+        </joint>
+    </xacro:macro>
+
+    <!-- hw: mock    -> mock_components (sin simulador, para pruebas)
+             gazebo  -> Gazebo Sim, a través de gz_ros2_control
+             real    -> robot físico (fase 3, falta el paquete serial3_hardware)
+         controllers_file: YAML de controladores que carga Gazebo (solo con hw:=gazebo) -->
+    <xacro:macro name="serial3_ros2_control" params="hw controllers_file">
+        <xacro:property name="command" value="${'position' if hw == 'mock' else 'effort'}" />
+
+        <ros2_control name="Serial3System" type="system">
+            <hardware>
+                <xacro:if value="${hw == 'mock'}">
+                    <plugin>mock_components/GenericSystem</plugin>
+                </xacro:if>
+                <xacro:if value="${hw == 'gazebo'}">
+                    <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+                </xacro:if>
+                <xacro:if value="${hw == 'real'}">
+                    <plugin>serial3_hardware/Serial3System</plugin>
+                </xacro:if>
+            </hardware>
+
+            <!-- Esfuerzos máximos tomados de los <limit> de cada junta -->
+            <xacro:serial3_joint_interfaces name="base_to_e1_joint" max_effort="77" command="${command}" />
+            <xacro:serial3_joint_interfaces name="e1_to_e2_joint" max_effort="133" command="${command}" />
+            <xacro:serial3_joint_interfaces name="e2_to_e3_joint" max_effort="66" command="${command}" />
+        </ros2_control>
+
+        <!-- Plugin de Gazebo Sim que arranca el controller_manager dentro de la simulación -->
+        <xacro:if value="${hw == 'gazebo'}">
+            <gazebo>
+                <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+                    <parameters>${controllers_file}</parameters>
+                </plugin>
+            </gazebo>
+        </xacro:if>
+    </xacro:macro>
+
+</robot>

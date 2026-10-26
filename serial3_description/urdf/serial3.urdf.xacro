@@ -1,0 +1,214 @@
+<?xml version="1.0"?>
+<!-- Manipulador Serial 3GDL -->
+<robot name="serial3" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- Hardware de ros2_control: mock (por defecto) | gazebo | real (fase 3) -->
+    <xacro:arg name="hw" default="mock" />
+    <!-- YAML de controladores que carga Gazebo (solo se usa con hw:=gazebo) -->
+    <xacro:arg name="controllers_file" default="" />
+
+    <!-- Importamos el archivo de colores para RViz/Gazebo -->
+    <xacro:include filename="$(find serial3_description)/urdf/materials.xacro" />
+    <!-- Importamos las interfaces de ros2_control de las juntas -->
+    <xacro:include filename="$(find serial3_description)/urdf/serial3.ros2_control.xacro" />
+    <xacro:serial3_ros2_control hw="$(arg hw)" controllers_file="$(arg controllers_file)" />
+
+    <!-- Declaramos un "dummy" para fijar 'base_link' en Gazebo -->
+    <link name="world" />
+    <joint name="world_to_base_joint" type="fixed">
+        <parent link="world" />
+        <child link="base_link" />
+    </joint>
+
+    <!-- Declaramos el primer eslabón del robot -->
+    <link name="base_link">
+
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://serial3_description/meshes/collision/base_link.STL" />
+            </geometry>
+        </collision>
+
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://serial3_description/meshes/visual/base_link.STL" />
+            </geometry>
+            <material name="grey" />
+        </visual>
+
+        <inertial>
+            <origin xyz="0.021781 -5.6862E-07 0.020002" rpy="0 0 0" />
+            <mass value="0.099185" />
+            <inertia
+                ixx="2.717E-05"
+                ixy="1.1961E-10"
+                ixz="8.6306E-08"
+                iyy="2.9447E-05"
+                iyz="1.1648E-12"
+                izz="4.9838E-05" />
+        </inertial>
+    </link>
+
+    <!-- Definimos a la junta que une al eslabón anterior con el siguiente -->
+    <joint name="base_to_e1_joint" type="revolute">
+        <parent link="base_link" />
+        <child link="e1_link" />
+        <origin xyz="0 0 0.04815" rpy="0 0 0.025007" />
+        <axis xyz="0 0 -1" />
+        <limit lower="-1.5708" upper="1.5708" effort="77" velocity="1.43" />
+        <dynamics damping="0.7"/>
+    </joint>
+
+    <!-- Declaramos al segundo eslabón y su junta -->
+    <link name="e1_link">    
+
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://serial3_description/meshes/collision/e1_link.STL" />
+            </geometry>
+        </collision>
+
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://serial3_description/meshes/visual/e1_link.STL" />
+            </geometry>
+            <material name="grey" />
+        </visual>
+
+        <inertial>
+            <origin xyz="1.5367E-06 0.0020022 0.016219" rpy="0 0 0" />
+            <mass value="0.010841" />
+            <inertia
+                ixx="3.3452E-06"
+                ixy="-1.561E-17"
+                ixz="1.5694E-10"
+                iyy="1.3848E-06"
+                iyz="6.927E-18"
+                izz="3.0336E-06" />
+        </inertial>
+    </link>
+
+    <joint name="e1_to_e2_joint" type="revolute">    
+        <parent link="e1_link" />
+        <child link="e2_link" />
+        <origin xyz="0 0.00025 0.0305" rpy="1.5708 -1.5679 0" />
+        <axis xyz="0 0 -1" />
+        <limit lower="-1.5708" upper="1.5708" effort="133" velocity="1.29" />
+        <dynamics damping="0.7"/>
+    </joint>
+
+    <!-- Declaramos el tercer eslabón y su junta-->
+    <link name="e2_link">
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://serial3_description/meshes/collision/e2_link.STL" />
+            </geometry>
+        </collision>
+
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://serial3_description/meshes/visual/e2_link.STL" />
+            </geometry>
+            <material name="grey" />
+        </visual>
+
+        <inertial>
+            <origin xyz="0.1205 9.6594E-07 -0.00070992" rpy="0 0 0" />
+            <mass value="0.094125" />
+            <inertia
+                ixx="8.4992E-06"
+                ixy="1.9769E-11"
+                ixz="-6.3555E-14"
+                iyy="2.1047E-05"
+                iyz="-7.3048E-15"
+                izz="2.3013E-05" />
+        </inertial>
+    </link>
+
+    <joint name="e2_to_e3_joint" type="revolute">
+        <parent link="e2_link" />
+        <child link="e3_link" />
+        <origin xyz="0.237 0 0.00025" rpy="0 0 0.017666" />
+        <axis xyz="0 0 -1" />
+        <limit lower="-1.5708" upper="1.5708" effort="66" velocity="2.13" />
+        <dynamics damping="0.7"/>
+    </joint>
+
+    <!-- Declaramos al a cuarto eslabón y su junta -->
+    <link name="e3_link">
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://serial3_description/meshes/collision/e3_link.STL" />
+            </geometry>
+        </collision>
+
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://serial3_description/meshes/visual/e3_link.STL" />
+            </geometry>
+            <material name="grey" />
+        </visual>
+
+        <inertial>
+            <origin xyz="0.028382 3.6464E-06 0.00077286" rpy="0 0 0" />
+            <mass value="0.010442" />
+            <inertia
+                ixx="2.9789E-06"
+                ixy="-1.5694E-10"
+                ixz="5.7337E-14"
+                iyy="5.9628E-06"
+                iyz="1.0873E-15"
+                izz="3.9543E-06" />
+        </inertial>
+    </link>
+
+    <joint name="e3_to_end_effector_joint" type="fixed">    
+        <parent link="e3_link" />
+        <child link="end_effector" />
+        <origin xyz="0.18 0 0" rpy="0 0 0" />
+         <axis xyz="0 0 0" />
+         <dynamics damping="0.7"/>
+    </joint>
+
+    <!-- Declaramos al efector final del robot -->
+    <link name="end_effector">
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://serial3_description/meshes/collision/end_effector.STL" />
+            </geometry>
+        </collision>
+
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://serial3_description/meshes/visual/end_effector.STL" />
+            </geometry>
+            <material name="grey" />
+        </visual>
+
+        <inertial>
+            <origin xyz="-0.0033957 -1.8646E-10 -1.3153E-09" rpy="0 0 0" />
+            <mass value="0.0013531" />
+            <inertia
+                ixx="6.1653E-08"
+                ixy="-6.4106E-16"
+                ixz="-6.4728E-15"
+                iyy="4.7314E-08"
+                iyz="-8.7372E-15"
+                izz="4.683E-08" />
+        </inertial>
+    </link>
+
+</robot>    
+
+
+
